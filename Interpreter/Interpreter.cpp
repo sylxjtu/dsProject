@@ -1,23 +1,7 @@
 #include <bits/stdc++.h>
+#include "include/Parser.h"
+#include "include/Symbol.h"
 using namespace std;
-
-// Class definition
-class Symbol {
-public:
-  enum Type {
-    Integer, Function
-  };
-  string name;
-  Type type;
-  int value;
-  Symbol() = default;
-  Symbol(string name, Type type, int value):
-    name(name),
-    type(type),
-    value(value){}
-  // For Integer the value
-  // For Function the line number
-};
 
 // Global datas
 unordered_map<string, Symbol> symbols;
@@ -31,92 +15,16 @@ bool beginWith(const string& source, const string& pattern) {
   return source.substr(0, pattern.size()) == pattern;
 }
 
-namespace LL1 {
-  int expr (const string& expression, int& cursor);
-  int pmexpr (const string& expression, int& cursor);
-
-  void gonext (const string& expression, int& cursor) {
-    if(isalnum(expression[cursor])) {
-      while(isalnum(expression[cursor])) {
-        cursor++;
-      }
-    }
-    else {
-      cursor++;
-    }
-    while(expression[cursor] == ' ') {
-      cursor++;
-    }
-  }
-
-  // LL1 functions
-
-  int atom (const string& expression, int& cursor) {
-    int ret;
-    if(expression[cursor] == '(') {
-      gonext(expression, cursor);
-      ret = expr(expression, cursor);
-      gonext(expression, cursor);
-    } else if(isdigit(expression[cursor])) {
-      sscanf(expression.c_str() + cursor, "%d", &ret);
-      gonext(expression, cursor);
-    } else if(isalpha(expression[cursor])) {
-      sscanf(expression.c_str() + cursor, "%[a-zA-Z]", buffer[0]);
-      string s(buffer[0]);
-      ret = symbols[s].value;
-      gonext(expression, cursor);
-    }
-    return ret;
-  }
-
-  pair<bool, int> rpmexpr (const string& expression, int& cursor) {
-    if(expression[cursor] == '*') {
-      gonext(expression, cursor);
-      return make_pair(true, pmexpr(expression, cursor));
-    } else if (expression[cursor] == '/') {
-      gonext(expression, cursor);
-      return make_pair(false, pmexpr(expression, cursor));
-    } else {
-      return make_pair(true, 1);
-    }
-  }
-
-  int pmexpr (const string& expression, int& cursor) {
-    int temp = atom(expression, cursor);
-    int temp2;
-    bool op;
-    tie(op, temp2) = rpmexpr(expression, cursor);
-    return op ? temp * temp2 : temp / temp2;
-  }
-
-  int rexpr (const string& expression, int& cursor) {
-    if(expression[cursor] == '+') {
-      gonext(expression, cursor);
-      return expr(expression, cursor);
-    } else if (expression[cursor] == '-') {
-      gonext(expression, cursor);
-      return -expr(expression, cursor);
-    } else {
-      return 0;
-    }
-  }
-
-  int expr (const string& expression, int& cursor) {
-    int temp = pmexpr(expression, cursor);
-    return temp + rexpr(expression, cursor);
-  }
-}
-
 int parseExpression (string expression) {
   int cursor = 0;
   expression.push_back('$');
-  return LL1::expr(expression, cursor);
+  return Parser::expr(expression, cursor).resolve(symbols);
 }
 
 void readProgram () {
   string temp;
   while(getline(cin, temp)) {
-    if(temp != "") {
+    if(temp != "" && isalpha(temp[0])) {
       program.push_back(temp);
     }
   }
@@ -179,7 +87,7 @@ bool executeLine (const string& line, unsigned& lineno) {
     int cursor = 0;
     sscanf(line.c_str(), "%*s %[^\n]", buffer[0]);
     string blendExpr(buffer[0]);
-    int times = LL1::expr(blendExpr, cursor);
+    int times = Parser::expr(blendExpr, cursor).resolve(symbols);
     unsigned dummy = 0;
     for(int i = 0; i < times; i++) {
       executeStatement(blendExpr.substr(cursor), dummy);
