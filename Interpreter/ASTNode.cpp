@@ -45,6 +45,9 @@ int ASTNode::resolve(std::unordered_map<std::string, Symbol>& scope) {
         case '/':
           return a / b;
           break;
+        case '%':
+          return a % b;
+          break;
       }
     }
   } else if(type == INTEGER) {

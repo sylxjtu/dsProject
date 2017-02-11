@@ -10,7 +10,7 @@ namespace Parser {
   constexpr int maxLevel = 1;
   const std::array<std::unordered_set<char>, maxLevel + 1> operators{
     std::unordered_set<char>{'+', '-'},
-    std::unordered_set<char>{'*', '/'}
+    std::unordered_set<char>{'*', '/', '%'}
   };
   void nextToken (const std::string& expression, int& cursor);
   ASTNode expr (const std::string& expression, int& cursor);
