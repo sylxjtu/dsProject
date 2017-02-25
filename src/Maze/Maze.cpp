@@ -128,9 +128,9 @@ int main () {
   }
 
   // 分配空间
-  Array2d<Node> nodes(width, height);                     // 迷宫中的节点
-  Array2d<int> disp((width * 2) + 1, (height * 2) + 1);   // 最终显示出的地图
-  vector<Edge> edges;                                     // 连接节点的边
+  Array2d<Node> nodes(width, height);  // 迷宫中的节点
+  Array2d<int> disp((width * 2) + 1, (height * 2) + 1);  // 最终显示出的地图
+  vector<Edge> edges;  // 连接节点的边
 
   // 初始化地图
   disp.clear(dispType::WALL);
@@ -171,13 +171,13 @@ int main () {
     bfsq.pop();
     if(p == make_pair(0, 1)) break;
     visited(p.first, p.second) = 1;
-    for(int i = -1; i <= 1; i++) {
+    for(int i = -1; i <= 1; i += 2) {
       if( parent.valid(p.first + i, p.second) && !visited(p.first + i, p.second) && disp(p.first + i, p.second) ) {
         parent(p.first + i, p.second) = make_pair(p.first, p.second);
         bfsq.emplace(p.first + i, p.second);
       }
     }
-    for(int i = -1; i <= 1; i++) {
+    for(int i = -1; i <= 1; i += 2) {
       if( parent.valid(p.first, p.second + i) && !visited(p.first, p.second + i) && disp(p.first, p.second + i) ) {
         parent(p.first, p.second + i) = make_pair(p.first, p.second);
         bfsq.emplace(p.first, p.second + i);
@@ -187,9 +187,13 @@ int main () {
 
   // 标记最短路径
   int curx = 0, cury = 1;
+  string route;
   while(make_pair(curx, cury) != make_pair(disp.width - 1, disp.height - 2)){
     disp(curx, cury) = dispType::WAY;
-    tie(curx, cury) = parent(curx, cury);
+    int nxtx, nxty;
+    tie(nxtx, nxty) = parent(curx, cury);
+    route.push_back("NW ES"[(nxtx - curx) + (nxty - cury) * 2 + 2]);
+    tie(curx, cury) = tie(nxtx, nxty);
   }
 
   // 打印迷宫
@@ -199,6 +203,7 @@ int main () {
     }
     cout << endl;
   }
+  cout << "Press <Enter> to print route" << endl;
 
   // 等待用户确认后打印最短路
   getchar();
@@ -215,6 +220,7 @@ int main () {
     }
     cout << endl;
   }
+  cout << route << endl;
 
   return 0;
 }

@@ -1,0 +1,140 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{hyperref}
+\usepackage{fontspec}
+\usepackage{float}
+\usepackage[normalem]{ulem}
+
+\useunder{\uline}{\ul}{}
+\hypersetup{hidelinks}
+\graphicspath{ {images/} }
+\setmonofont{Fantasque Sans Mono}
+\setCJKmonofont{Microsoft YaHei}
+\setminted{linenos, breaklines, tabsize=2}
+\newmintinline{cpp}{}
+\newcommand{\cppsubp}[1]{\subparagraph{\cppinline/{#1}/}\mbox{}\\}
+\newcommand{\myfigure}[2]{\begin{figure}[H]\caption{{#1}}\includegraphics[width=\textwidth,keepaspectratio]{{#2}}\centering\end{figure}}
+
+\title{数据结构综合训练\footnote{完整代码和附加文件请参见https://github.com/sylxjtu/dsProject}}
+\date{\today}
+\author{沈俞霖, 陈铮}
+
+\begin{document}
+  \maketitle
+  \vspace{80mm}
+  \begin{flushright}
+
+  \textbf{组名}     \makebox[7em][l]{白膜法师}
+
+  \textbf{成员}     \makebox[7em][l]{软件51 沈俞霖}
+
+                    \makebox[7em][l]{2151601013}
+
+  \textbf{成员}     \makebox[7em][l]{软件42 陈铮}
+
+                    \makebox[7em][l]{2141601026}
+
+  \textbf{提交日期} \makebox[7em][l]{\today}
+
+  \textbf{联系电话} \makebox[7em][l]{13679119978}
+
+  \end{flushright}
+  \newpage
+
+  \tableofcontents
+  \newpage
+
+  \section{迷宫}
+    \subsection{实验名称}
+      迷宫
+    \subsection{需求和规格说明}
+      \subsubsection{问题描述}
+        题目要求使用 Union-Find 数据结构完成一个迷宫的生成。迷宫的入口点位于左上角，出口点是在图的右下角，在迷宫的矩形中，左上角的单元被连通到右下角的单元，而且这些单元与相邻的单元通过墙壁分离开来。
+      \subsubsection{输入输出}
+        \paragraph{输入}
+        输入两个整数$width, height > 0$，代表所生成迷宫对应的宽高。
+        \paragraph{输出}
+          \begin{itemize}
+            \item 用合理的方式展现生成的迷宫。
+            \item 给出迷宫可以走通的路径。以 SEN…（代表向南，然后向东，然后再向北，等等）的形式给出输出结果。
+          \end{itemize}
+    \subsection{设计}
+      \subsubsection{设计思想}
+        要生成的迷宫可以看做一个$width * height$的节点矩阵，矩阵的相邻节点之间有边（无墙）或无边（被墙阻挡），这样的一个节点矩阵构成了一个图，规定左上角节点为入口，右下角节点为出口。若要使得每个节点与入口连通且边数最少，这样一个节点图为一棵树，因此问题可以规约为寻找一棵随机生成树。
+        \paragraph{主要算法}
+          首先处理出所有可能的边，将此边对应的位置设为墙，进行随机排列后遍历，其中当前边连接的节点若
+            \begin{itemize}
+              \item 未连通，则连通此边，将此边对应的墙转为空地
+              \item 已连通，则跳过此边
+            \end{itemize}
+          节点之间的连通性使用Union-Find数据结构进行维护
+          遍历完成后将迷宫地图输出，再在迷宫地图上进行广度优先搜索寻找到起点到终点的路径。
+        \paragraph{存储结构}
+          在节点数据结构中存储节点在Union-Find数据结构中的父节点的指针
+          在边数据结构中存储边所连接的两个节点
+      \subsubsection{设计表示}
+        \paragraph{迷宫节点 \cppinline/class Node/}
+          \cppsubp{Node* parent/}
+          代表Union-Find数据结构中本节点的父节点指针
+          \cppsubp{Node* findparent ()/}
+          查询节点在Union-Find树上的根节点
+          \cppsubp{Node ()}
+          默认初始化函数初始根节点为节点本身
+          \cppsubp{void merge (Node& that)}
+          合并两个节点所在集合
+          \cppsubp{bool operator== (Node& that)}
+          查询两个节点是否在同一集合
+
+        \paragraph{连接节点的边 \cppinline/class Edge/}
+          \cppsubp{Node *s, *e}
+          边的起点，终点
+          \cppsubp{int x, y}
+          边所代表的障碍所在位置
+          \cppsubp{Edge (Node* s, Node *e, int x, int y)}
+          初始化边
+          \cppsubp{bool destroy ()}
+          判断一条边上两个节点是否连通，若不连通则合并节点并删除边
+      \subsubsection{实现注释}
+        各项功能已全部实现，新实现了在展示迷宫的同时展示通路的功能
+      \subsubsection{详细设计表示}
+        \paragraph{Maze.cpp}
+        \inputminted{cpp}{../src/Maze/Maze.cpp}
+    \subsection{调试报告}
+      \subsubsection{遇到的主要问题和解决方案}
+      在编写程序的过程中遇到的主要问题是不能很好地实现生成随机排列算法，使用了\cppinline/std::random_shuffle/解决
+      \subsubsection{对于设计编码的回顾讨论和分析}
+      \begin{itemize}
+        \item 设计编码中通过使用操作符重载的特性简化了代码量，增加了可读性
+        \item 设计编码中没有很好地使用模块化特性，代码文件偏长，不能很好定位
+      \end{itemize}
+      \subsubsection{时空分析}
+      设迷宫大小$width * height$为$N$，程序分几个步骤执行，每个步骤的时间复杂度为
+      \begin{description}
+        \item[初始化地图和边列表]
+        $O(N)$
+        \item[随机拆除边使图最终成为树]
+        随机排边$O(N)$，拆除$N$条边$O(N)$
+        \item[通过BFS查找和标记最短路径]
+        $O(N)$
+        \item[输出迷宫]
+        $O(N)$
+      \end{description}
+      整个程序的空间复杂度为$O(N)$
+      \subsubsection{改进设想}
+      \begin{itemize}
+        \item 使用GUI界面代替CLI界面，使界面更加美观
+        \item 添加交互性模块，使用户能够操作角色在迷宫内活动
+      \end{itemize}
+    \subsection{运行结果展示}
+      \myfigure{迷宫1}{images/迷宫1}
+      \myfigure{迷宫2}{images/迷宫2}
+
+  \begin{thebibliography}{1}
+  \bibitem{latexcompanion}
+  作者
+  \textit{书名}.
+  地点：出版社，年.月
+  \end{thebibliography}
+\end{document}
