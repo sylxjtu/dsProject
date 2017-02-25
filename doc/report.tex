@@ -12,10 +12,11 @@
 \graphicspath{ {images/} }
 \setmonofont{Fantasque Sans Mono}
 \setCJKmonofont{Microsoft YaHei}
-\setminted{linenos, breaklines, tabsize=2}
+\setminted[cpp]{linenos, breaklines, tabsize=2}
 \newmintinline{cpp}{}
+\newmintinline[code]{text}{}
 \newcommand{\cppsubp}[1]{\subparagraph{\cppinline/{#1}/}\mbox{}\\}
-\newcommand{\myfigure}[2]{\begin{figure}[H]\caption{{#1}}\includegraphics[width=\textwidth,keepaspectratio]{{#2}}\centering\end{figure}}
+\newcommand{\myfigure}[2]{\begin{figure}[H]\caption{{#1}}\includegraphics[width=\textwidth,height=80mm,keepaspectratio]{{#2}}\centering\end{figure}}
 
 \title{数据结构综合训练\footnote{完整代码和附加文件请参见https://github.com/sylxjtu/dsProject}}
 \date{\today}
@@ -76,9 +77,9 @@
           在边数据结构中存储边所连接的两个节点
       \subsubsection{设计表示}
         \paragraph{迷宫节点 \cppinline/class Node/}
-          \cppsubp{Node* parent/}
+          \cppsubp{Node* parent}
           代表Union-Find数据结构中本节点的父节点指针
-          \cppsubp{Node* findparent ()/}
+          \cppsubp{Node* findparent ()}
           查询节点在Union-Find树上的根节点
           \cppsubp{Node ()}
           默认初始化函数初始根节点为节点本身
@@ -130,6 +131,250 @@
     \subsection{运行结果展示}
       \myfigure{迷宫1}{images/迷宫1}
       \myfigure{迷宫2}{images/迷宫2}
+
+  \section{微型编程语言解释器}
+    \subsection{实验名称}
+      微型编程语言解释器
+    \subsection{需求和规格说明}
+      \subsubsection{问题描述}
+      解释器（英语：Interpreter），又译为直译器，是一种电脑程序，能够把高级编程语言一行一行直接转译运行。解释器不会一次把整个程序转译出来，只像一位“中间人”，每次运行程序时都要先转成另一种语言再作运行，因此解释器的程序运行速度比较缓慢。它每转译一行程序叙述就立刻运行，然后再转译下一行，再运行，如此不停地进行下去。该题目要求实现的是一个能够解释执行具有赋值语句、函数定义语句以及函数执行语句的小型解释器。下面将通过解释器的输入、输出以及限制等方面描述该问题。
+      \subsubsection{输入输出}
+        \paragraph{输入}
+        输入是由一组赋值语句、函数定义语句以及函数调用语句构成。
+
+        赋值语句具有如下的定义形式：\code/ASSIGN <variable> <expression>/。\code/variable/ 是用一个仅包含英文字母所构成的长度不超过 8 个字符的字符串构成；\code/expression/ 是一个算术四则混合运算表达式，其包含的运算符就是+、-、*、／四个算术运算法，其操作数要么是正数（只需要考虑整数形式）要么是已定义的 \code/variable/。表达式中的运算符和操作数使用空格的形式进行分割。一个赋值语句只占用一行，具体举例如下：
+        \begin{minted}{text}
+        ASSIGN X 1
+        ASSIGN X X + 2
+        ASSIGN Number (X + 2) * (X – 2)
+        \end{minted}
+
+        函数调用语句的定义形式：\code/CALL <function>/ 。\code/function/即为函数名字，函数名字和\code/variable/名字的定义要求是一样的。函数调用语句也只占用一行，具体举例如下：
+        \begin{minted}{text}
+        CALL TryThis
+        \end{minted}
+
+        函数定义语句是由一组语句组成，具体要求如下：
+        \begin{enumerate}
+          \item 第一行必须是 \code/DEFINE <function>/
+          \item 最后一行必须是 \code/END/
+          \item 除第一行和最后一行之外的所有行只能是赋值语句或者函数调用语句
+        \end{enumerate}
+        具体举例如下：
+        \begin{minted}{text}
+        DEFINE IncrementX
+        ASSIGN X X+1
+        END
+        DEFINE FF
+        CALL IncrementX
+        ASSIGN Y X*X
+        END
+        \end{minted}
+
+        备注：输入的源代码中可以包含空行，但这些空行在解释执行过程中都应该被忽略。
+        \paragraph{输出}
+        解释器执行后，其输出内容应该就是对每一条语句执行结果的显示。具体解释如下：
+        \begin{enumerate}
+          \item 每当执行一条 \code/ASSIGN/ 语句，解释器都应该输出如下格式的内容：\\\code/Assigning <value> to <variable>/
+          \item 每当执行到函数定义语句，解释器都应该输出如下格式的内容： \\\code/Defining function <function name>/
+          \item 每当执行到函数调用语句，解释器都应该输出如下格式的内容： \\\code/Calling function <function name>/
+        \end{enumerate}
+        假设一个源代码如下所示：
+        \begin{minted}{text}
+        ASSIGN X 1
+        ASSIGN Y 1
+        DEFINE Fib
+        ASSIGN TMP Y
+        ASSIGN Y X+Y
+        ASSIGN X TMP
+        END
+        CALL Fib
+        ASSIGN W X
+        CALL Fib
+        ASSIGN Z W * Y – X * X
+        \end{minted}
+        在上面的输入下，解释器的执行结果应该如下：
+        \begin{minted}{text}
+        Assigning 1 to X
+        Assigning 1 to Y
+        Defining Fib
+        Calling Fib
+        Assigning 1 to TMP
+        Assigning 2 to Y
+        Assigning 1 to X
+        Assigning 1 to W
+        Calling Fib
+        Assigning 2 to TMP
+        Assigning 3 to Y
+        Assigning 2 to X
+        Assigning -1 to Z
+        \end{minted}
+      \subsubsection{其他要求}
+        解释器可以忽略如下检查
+        \begin{itemize}
+          \item 输入的源代码格式总是正确的
+          \item 每个变量在访问之前总是有值的
+          \item 每个函数在输入的源代码中只会被定义一次
+          \item 每个函数在调用之前总是被定义好的
+          \item 不支持递归函数的调用，不管是直接的递归调用还是间接的递归调用
+        \end{itemize}
+      \subsubsection{扩展要求}
+      使得该编程语言支持循环语句，具体的循环语句格式为：\\\code/FOR <expression> <statement>/
+
+      循环语句将根据\code/expression/计算的结果值执行多次\code/statement/语句。其中，\code/statement/要么是一条赋值语句，要么是一个函数调用语句；\code/expression/只有在进入循环时才会被计算，而且仅被计算这一次。举例如下：
+      \begin{minted}{text}
+      FOR 10 ASSIGN N N + N
+      FOR / N 2 ASSIGN X X + 1
+      FOR 8 CALL Fib
+      \end{minted}
+      当执行循环语句时，输出的要求只具体到输出循环语句中对赋值语句或者函数调用语句的输出，而不用专门写对循环语句的输出内容。
+
+    \subsection{设计}
+      \subsubsection{设计思想}
+        该解释器可以分为两个主要模块，一个模块负责解释执行代码，另一模块负责表达式计算。
+
+        解释器以行为基本单位执行代码，每行有一个简单语句或复合语句，其中
+        \begin{itemize}
+          \item \code/FOR/ 语句为复合语句
+          \item 其他语句为简单语句
+        \end{itemize}
+        对每个简单语句定义一个函数进行处理，这个函数负责执行语句，输出调试信息和更新当前行号。
+
+        定义一个全局符号表，使用\cppinline/std::unordered_map/作为hash表存储符号值，其中
+        \begin{itemize}
+          \item 对变量型符号，符号表存储变量的值
+          \item 对函数型符号，符号表存储函数定义行的行号
+        \end{itemize}
+
+        表达式计算模块负责处理和计算表达式，输入为一个表达式字符串和一个符号表，输出为表达式的值，内部使用抽象语法树AST作为表达式的中间存储格式，以增强本程序的扩展性。
+
+        \paragraph{主要算法}
+          \paragraph{解释器}
+          首先以行为单位读入程序，初始化当前执行行为第一行，然后以行为单位进行迭代执行，直到当前执行行超出最后一行边界停止执行。
+          对于每个语句
+            \begin{description}
+              \item[\code/ASSIGN/]
+              从字符串中获取变量名和表达式，计算变量值，将变量值写入符号表中，跳转到下一行
+              \item[\code/DEFINE/]
+              从字符串中获取函数名，向下寻找到\code/END/语句，跳转到函数定义结束
+              \item[\code/CALL/]
+              从字符串中获取函数名，从函数起始行开始执行，直到\code/END/语句
+              \item[\code/FOR/]
+              从字符串中获取循环次数表达式和语句，计算出循环次数，以此次数执行循环体语句
+            \end{description}
+
+        \paragraph{表达式计算器}
+        初始化运算符优先级，通过LL1算法解析出抽象语法树，通过在抽象语法树上递归计算得到表达式值
+
+        \paragraph{存储结构}
+          在符号表中存储符号和值的对应关系
+          程序代码以\cppinline/std::string/的线性表方式按行存储
+          抽象语法树以节点为存储单位，每个节点存储节点类型、值和其child节点
+
+      \subsubsection{设计表示}
+      \paragraph{抽象语法树节点 \cppinline/class ASTNode/}
+        \cppsubp{enum Type}
+        节点类型
+        \begin{description}
+          \item[\cppinline/INVALID/] 无效节点
+          \item[\cppinline/HUB/]     非叶节点
+          \item[\cppinline/INTEGER/] 整数字面值节点
+          \item[\cppinline/OPERATOR/] 运算符节点
+          \item[\cppinline/SYMBOL/]  变量节点
+        \end{description}
+
+        \cppsubp{uint64_t value}
+        节点值(针对符号节点和整数字面值节点)
+
+        \cppsubp{std::string symbol}
+        节点名称(针对变量节点)
+
+        \cppsubp{std::vector<ASTNode> children}
+        子节点(针对非叶节点)
+
+        \cppsubp{int resolve(std::unordered_map<std::string, Symbol>& scope)}
+        求值(传入作用域)
+
+      \paragraph{符号 (代表变量和函数) \cppinline/class Symbol/}
+        \cppsubp{std::string name}
+        符号名
+
+        \cppsubp{enum Type}
+        \begin{description}
+          \item[\cppinline/Integer/] 整数变量
+          \item[\cppinline/Function/] 函数
+        \end{description}
+
+        \cppsubp{int value}
+        符号值 (变量的值或函数的起始行号)
+
+        \cppsubp{Symbol(std::string name, Type type, int value)}
+        初始化函数
+
+      \paragraph{表达式解析器 \cppinline/namespace Parser/}
+        \cppsubp{constexpr int maxLevel = 1}
+        最高运算符优先级
+
+        \cppsubp{const std::array<std::unordered_set<char>, maxLevel + 1> operators}
+        运算符表
+
+        \cppsubp{void nextToken (const std::string& expression, int& cursor)};
+        将指针移向下一个单元(运算符，变量名，数字)的第一个字符
+
+        \cppsubp{ASTNode expr (const std::string& expression, int& cursor)}
+        解析一个表达式
+
+        \cppsubp{ASTNode expn (const std::string& expression, int& cursor, int n)}
+        解析一个只含有优先级大于等于n的运算符的表达式
+
+        \cppsubp{ASTNode rxpn (const std::string& expression, int& cursor, int n)}
+        解析一个以运算符开头的只含有优先级大于等于n的运算符的表达式
+
+        \cppsubp{ASTNode atom (const std::string& expression, int& cursor)}
+        解析一个数字、变量、负号表达式
+      \subsubsection{实现注释}
+        各项功能已全部实现，新实现了FOR循环嵌套的功能和打印表达式树的功能
+      \subsubsection{详细设计表示}
+        \paragraph{AST节点定义 ASTNode.h}
+        \inputminted{cpp}{../src/Interpreter/include/ASTNode.h}
+        \paragraph{AST节点实现 ASTNode.cpp}
+        \inputminted{cpp}{../src/Interpreter/ASTNode.cpp}
+        \paragraph{表达式解析器定义 Parser.h}
+        \inputminted{cpp}{../src/Interpreter/include/Parser.h}
+        \paragraph{表达式解析器实现 Parser.cpp}
+        \inputminted{cpp}{../src/Interpreter/Parser.cpp}
+        \paragraph{符号定义 Symbol.h}
+        \inputminted{cpp}{../src/Interpreter/include/Symbol.h}
+        \paragraph{解释器实现 Interpreter.cpp}
+        \inputminted{cpp}{../src/Interpreter/Interpreter.cpp}
+    \subsection{调试报告}
+      \subsubsection{遇到的主要问题和解决方案}
+      在编写程序的过程中遇到的主要问题是不能很好地处理负号表达式和运算结合性，最终通过将递归算法调整为迭代算法进行解决
+      \subsubsection{对于设计编码的回顾讨论和分析}
+      \begin{itemize}
+        \item 设计编码中使用了定义实现分离，代码可读性更强
+        \item 设计编码中使用了过多全局变量，代码风格不够好
+      \end{itemize}
+      \subsubsection{时空分析}
+      \paragraph{表达式解析器}
+        通过LL1算法，表达式解析器大致能做到$O(N)$($N$为表达式长度)的时间复杂度，$O(M)$($M$为符号数)的空间复杂度
+      \paragraph{解释器}
+        通过hash表，解释器可以在$O(1)$时间内进行符号值的查找和更改，整个执行过程中时间复杂度为$O(N)$($N$为代码长度)
+      \subsubsection{改进设想}
+      \begin{itemize}
+        \item 添加交互模式，语句一经输入立刻执行
+        \item 添加对数组的支持
+        \item 添加条件变量和条件语句
+        \item 添加IO语句
+      \end{itemize}
+    \subsection{运行结果展示}
+      \myfigure{计算从1加到4}{images/计算从1加到4}
+      \myfigure{题目测试}{images/题目测试}
+      \myfigure{嵌套\code/FOR/循环}{images/嵌套FOR循环}
+      \myfigure{测试表达式树解析}{images/测试表达式树解析}
+
+  \section{实验总结}
+    
 
   \begin{thebibliography}{1}
   \bibitem{latexcompanion}

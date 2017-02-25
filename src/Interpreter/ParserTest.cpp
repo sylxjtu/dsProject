@@ -12,5 +12,5 @@ int main() {
   return 0;
 }
 
-//2333+666-23-12*5/6+(-x)/fuck
+//2333+666-23-12*5/6+(-(-(-2)-(-x)))/aLongVaribleName%aShortVaribleName
 //-1+2*3

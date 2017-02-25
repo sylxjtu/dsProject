@@ -58,6 +58,10 @@ void executeDefine (const string& statement, unsigned& lineno) {
   cout << "Defining " << symbol << endl;
   // 跳转到函数定义结束
   while(!beginWith(program[lineno], "END")) {
+    if(lineno >= program.size()) {
+      cout << "ERROR: \"END\" not found in function definition" << endl;
+      exit(0);
+    }
     lineno++;
   }
   lineno++;
@@ -103,7 +107,7 @@ bool executeLine (const string& line, unsigned& lineno) {
     // 不需要传递代码行， 用dummy代替
     unsigned dummy = 0;
     for(int i = 0; i < times; i++) {
-      executeStatement(blendExpr.substr(cursor), dummy);
+      executeLine(blendExpr.substr(cursor), dummy);
     }
     lineno++;
     return true;

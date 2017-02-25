@@ -6,9 +6,9 @@ void ASTNode::display() {
   // 结果为LISP表达式
   if(type == HUB) {
     printf("(");
-    for(auto n: children) {
-      n.display();
-      printf(" ");
+    for(unsigned i = 0; i < children.size(); i++) {
+      children[i].display();
+      printf(i == children.size() - 1 ? "" : " ");
     }
     printf(")");
   } else if(type == INTEGER) {
