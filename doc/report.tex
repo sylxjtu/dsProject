@@ -318,7 +318,7 @@
         \cppsubp{const std::array<std::unordered_set<char>, maxLevel + 1> operators}
         运算符表
 
-        \cppsubp{void nextToken (const std::string& expression, int& cursor)};
+        \cppsubp{void nextToken (const std::string& expression, int& cursor)}
         将指针移向下一个单元(运算符，变量名，数字)的第一个字符
 
         \cppsubp{ASTNode expr (const std::string& expression, int& cursor)}
@@ -374,12 +374,11 @@
       \myfigure{测试表达式树解析}{images/测试表达式树解析}
 
   \section{实验总结}
-    
-
+    通过这次实验我们系统地学习了Union-Find数据结构，并且学习了一些编译原理的算法。在进行这次实验的过程中，我们适当地使用了C++的面向对象特性，简化了代码增加了代码可读性。在项目管理方面，我们使用了\code/make/命令通过撰写Makefile来进行自动化构建，并且使用了\code/git/进行版本控制和团队协作。总体上来说在各个方面都有不小的收获。
   \begin{thebibliography}{1}
-  \bibitem{latexcompanion}
-  作者
-  \textit{书名}.
-  地点：出版社，年.月
+  \bibitem{introalgo}
+  Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein
+  \textit{算法导论}.
+  机械工业出版社，2013.1
   \end{thebibliography}
 \end{document}
